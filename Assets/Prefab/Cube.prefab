@@ -103,7 +103,7 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &5187396502132955653
@@ -228,4 +228,7 @@ MonoBehaviour:
   coloredFace: {fileID: 4437503975045853558}
   materials:
   - {fileID: 2100000, guid: 4b4f072bd7e443a429166d884fb98f2d, type: 2}
+  - {fileID: 2100000, guid: bd0e644ddb20e274aabdfd866ea89134, type: 2}
   - {fileID: 2100000, guid: 47e394b426f049741928d546b1b6a6cb, type: 2}
+  rescaling: 0
+  moving: 0

@@ -11,6 +11,7 @@ public class ScalableBlock : MonoBehaviour
 
     public bool rescaling = false;
     public bool moving = false;
+    bool cantScaleUp = false;
 
     bool completelyReseted = true;
 
@@ -180,6 +181,8 @@ public class ScalableBlock : MonoBehaviour
             moving = false;
             rescaling = false;
 
+            cantScaleUp = false;
+
             coloredFace.GetComponent<MeshRenderer>().material = materials[2];
 
             lastPlayerPos = Vector3.zero;
@@ -271,59 +274,75 @@ public class ScalableBlock : MonoBehaviour
         Vector3 distanceInterFace = intersectionPoint - faceCenter;
 
 
+
+
         
 
-        Vector3 lastPosition = transform.position;
-        Vector3 lastScale = transform.localScale;
-
         Debug.DrawLine(faceCenter, faceCenter + distanceInterFace, Color.blue);
-
         
             switch (faceDirection)
             {
                 case FaceDirection.Up:
-                    if (transform.localScale.y + distanceInterFace.y >= 0.5f && transform.localScale.y + distanceInterFace.y <= 10)
-                    {
-                        transform.localScale += new Vector3(0, distanceInterFace.y, 0);
-                        transform.position += new Vector3(0, distanceInterFace.y / 2, 0);
-                    }
+                if(cantScaleUp && distanceInterFace.y > 0) 
+                {
+                    break;
+                }
+                if (transform.localScale.y + distanceInterFace.y >= 0.5f && transform.localScale.y + distanceInterFace.y <= 10)
+                {
+                    transform.localScale += new Vector3(0, distanceInterFace.y, 0);
+                    transform.position += new Vector3(0, distanceInterFace.y / 2, 0);
+                }
                     break;
                 case FaceDirection.Down:
-                    if (transform.localScale.y - distanceInterFace.y >= 0.5f && transform.localScale.y - distanceInterFace.y <= 10)
-                    {
-                        transform.localScale -= new Vector3(0, distanceInterFace.y, 0);
-                        transform.position += new Vector3(0, distanceInterFace.y / 2, 0);
-                    }
+                if(cantScaleUp && distanceInterFace.y < 0)
+                {
+                    break;
+                }
+                if (transform.localScale.y - distanceInterFace.y >= 0.5f && transform.localScale.y - distanceInterFace.y <= 10)
+                {
+                    transform.localScale -= new Vector3(0, distanceInterFace.y, 0);
+                    transform.position += new Vector3(0, distanceInterFace.y / 2, 0);
+                }
                     break;
                 case FaceDirection.North:
-                    if (transform.localScale.z + distanceInterFace.z >= 0.5f && transform.localScale.z + distanceInterFace.z <= 10)
-                    {
-                        transform.localScale += new Vector3(0, 0, distanceInterFace.z);
-                        transform.position += new Vector3(0, 0, distanceInterFace.z / 2);
-                    }
+                if (cantScaleUp && distanceInterFace.z > 0)
+                    break;
+                if (transform.localScale.z + distanceInterFace.z >= 0.5f && transform.localScale.z + distanceInterFace.z <= 10)
+                {
+                    transform.localScale += new Vector3(0, 0, distanceInterFace.z);
+                    transform.position += new Vector3(0, 0, distanceInterFace.z / 2);
+                }
                     break;
                 case FaceDirection.South:
-                    if (transform.localScale.z - distanceInterFace.z >= 0.5f && transform.localScale.z - distanceInterFace.z <= 10)
-                    {
-                        transform.localScale -= new Vector3(0, 0, distanceInterFace.z);
-                        transform.position += new Vector3(0, 0, distanceInterFace.z / 2);
-                    }
+                if (cantScaleUp && distanceInterFace.z < 0)
+                    break;
+                if (transform.localScale.z - distanceInterFace.z >= 0.5f && transform.localScale.z - distanceInterFace.z <= 10)
+                {
+                    transform.localScale -= new Vector3(0, 0, distanceInterFace.z);
+                    transform.position += new Vector3(0, 0, distanceInterFace.z / 2);
+                }
                     break;
                 case FaceDirection.East:
-                    if (transform.localScale.x + distanceInterFace.x >= 0.5f && transform.localScale.x + distanceInterFace.x <= 10)
-                    {
-                        transform.localScale += new Vector3(distanceInterFace.x, 0, 0);
-                        transform.position += new Vector3(distanceInterFace.x / 2, 0, 0);
-                    }
+                if (cantScaleUp && distanceInterFace.x > 0)
+                    break;
+                if (transform.localScale.x + distanceInterFace.x >= 0.5f && transform.localScale.x + distanceInterFace.x <= 10)
+                {
+                    transform.localScale += new Vector3(distanceInterFace.x, 0, 0);
+                    transform.position += new Vector3(distanceInterFace.x / 2, 0, 0);
+                }
                     break;
                 case FaceDirection.West:
-                    if (transform.localScale.x - distanceInterFace.x >= 0.5f && transform.localScale.x - distanceInterFace.x <= 10)
-                    {
-                        transform.localScale -= new Vector3(distanceInterFace.x, 0, 0);
-                        transform.position += new Vector3(distanceInterFace.x / 2, 0, 0);
-                    }
+                if (cantScaleUp && distanceInterFace.x < 0)
                     break;
+                if (transform.localScale.x - distanceInterFace.x >= 0.5f && transform.localScale.x - distanceInterFace.x <= 10)
+                {
+                    transform.localScale -= new Vector3(distanceInterFace.x, 0, 0);
+                    transform.position += new Vector3(distanceInterFace.x / 2, 0, 0);
+                }
+                break;
         }
+
+
 
 
 
@@ -338,11 +357,9 @@ public class ScalableBlock : MonoBehaviour
                 closestAngle = angle;
             }
         }
-
-        if (Vector3.Distance(camera.position, closestAngle) < 2f)
+        if (Vector3.Distance(camera.position, closestAngle) < 1.5f)
         {
-            transform.position = lastPosition;
-            transform.localScale = lastScale;
+            cantScaleUp = true;
         }
 
     }

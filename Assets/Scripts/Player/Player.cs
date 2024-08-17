@@ -46,4 +46,11 @@ public class Player : MonoBehaviour
             return null;
         }
     }
+
+
+    public static void UpPlayer()
+    {
+        GameObject player = GetPlayer();
+        player.transform.position = new Vector3(player.transform.position.x, player.transform.position.y + 1, player.transform.position.z);
+    }
 }

@@ -13,37 +13,23 @@ public class PlayerMovement : MonoBehaviour
     Vector3 movementX;
     Vector3 movementZ;
 
-    bool movementLocked = false;
-
 
 
     // -------------------------------------------------------------------------------- Functions Unity -------------------------------------------------------------------------------- //
     void Update()
     {
-        if (!movementLocked)
-        {
-            horizontalInput = Input.GetAxis("Horizontal");
-            verticalInput = Input.GetAxis("Vertical");
+        horizontalInput = Input.GetAxis("Horizontal");
+        verticalInput = Input.GetAxis("Vertical");
 
-            // Mouvement
-            movementZ = transform.TransformDirection(Vector3.forward) * verticalInput * speed;
-            movementX = transform.TransformDirection(Vector3.right) * horizontalInput * speed;
-        }
+        // Mouvement
+        movementZ = transform.TransformDirection(Vector3.forward) * verticalInput * speed;
+        movementX = transform.TransformDirection(Vector3.right) * horizontalInput * speed;
 
     }
 
     private void FixedUpdate()
     {
-        if (!movementLocked)
-        {
-            GetComponent<Rigidbody>().AddForce(movementX);
-            GetComponent<Rigidbody>().AddForce(movementZ);
-        }
-    }
-
-
-    public void SetLockMouvement(bool booleen)
-    {
-        movementLocked = booleen;
+        GetComponent<Rigidbody>().AddForce(movementX);
+        GetComponent<Rigidbody>().AddForce(movementZ);
     }
 }

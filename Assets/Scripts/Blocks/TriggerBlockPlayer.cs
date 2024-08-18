@@ -55,6 +55,6 @@ public class TriggerBlockPlayer : MonoBehaviour
 
         // Appliquer le facteur de correction à l'échelle locale de l'objet
         transform.localScale = new Vector3(initialScale.x, initialScale.y * correctionFactor, initialScale.z);
-        Debug.Log("Trigger block scale: " + transform.localScale);
+        //Debug.Log("Trigger block scale: " + transform.localScale);
     }
 }

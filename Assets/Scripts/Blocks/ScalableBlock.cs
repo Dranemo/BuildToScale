@@ -248,9 +248,17 @@ public class ScalableBlock : MonoBehaviour
 
         if (moving) // Rose
         {
-            MoveBlock();
-            lastPlayerPos = Player.GetPlayer().transform.position;
-            playerRotation = Player.GetPlayer().transform.eulerAngles;
+            if(cantScaleUp && faceDirection == FaceDirection.Up)
+            {
+                return;
+            }
+            else
+            {
+
+                MoveBlock();
+                lastPlayerPos = Player.GetPlayer().transform.position;
+                playerRotation = Player.GetPlayer().transform.eulerAngles;
+            }
         }
         else if (rescaling) // Rouge
         {
@@ -288,11 +296,8 @@ public class ScalableBlock : MonoBehaviour
 
         Vector3 PlayerRotationDiff = playerRotation - player.eulerAngles;
 
-        // MoveTowards pour déplacer l'objet
-        if (targetPosition.y >= 0 + transform.localScale.y / 2)
-        {
-            transform.position = Vector3.MoveTowards(transform.position, targetPosition, Time.deltaTime * 10);
-        }
+        transform.position = Vector3.MoveTowards(transform.position, targetPosition, Time.deltaTime * 10);
+        
 
         // Ajouter le mouvement du joueur
         transform.position += playerMovement;
@@ -305,6 +310,14 @@ public class ScalableBlock : MonoBehaviour
             transform.position = cameraTransform.position + cameraTransform.forward * minDistanceMoving;
         }
 
+
+
+        // MoveTowards pour déplacer l'objet
+        if (transform.position.y < 0 + transform.localScale.y / 2)
+        {
+            Debug.Log("en dessous");
+            transform.position = new Vector3(transform.position.x, 0 + transform.localScale.y / 2, transform.position.z);
+        }
     }
 
 

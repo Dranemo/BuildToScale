@@ -16,9 +16,12 @@ public class PlayerPower : MonoBehaviour
     [SerializeField] private GameObject blockPrefab;
     [SerializeField] private GameObject blockTrigger;
 
+    [SerializeField] GameObject cubefile;
+
 
     private GameObject lastCollision;
     public bool canSummonBlock = true;
+
 
 
 
@@ -28,7 +31,10 @@ public class PlayerPower : MonoBehaviour
         RaycastBlock();
 
         if(Input.GetButtonDown("SummonBlock"))
+        {
+            Debug.Log("Summoning block");
             SummonBlock();
+        }
     }
 
 
@@ -67,11 +73,12 @@ public class PlayerPower : MonoBehaviour
     {
         if(canSummonBlock)
         {
-            Debug.Log("Summoning block");
+            Debug.Log("Summoning block effective");
 
             //Instantiate(blockPrefab, blockTrigger.transform.position, Quaternion.identity);
-            Instantiate(blockPrefab, blockTrigger.transform.position, blockTrigger.transform.rotation);
+            GameObject block = Instantiate(blockPrefab, blockTrigger.transform.position, blockTrigger.transform.rotation);
 
+            block.transform.parent = cubefile.transform;
         }
     }
 }

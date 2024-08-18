@@ -42,26 +42,32 @@ public class ScalableBlock : MonoBehaviour
     {
         if (hit.normal == transform.up)
         {
+            //Debug.Log("Up");
             return FaceDirection.Up;
         }
         else if (hit.normal == -transform.up)
         {
+            //Debug.Log("Down");
             return FaceDirection.Down;
         }
         else if (hit.normal == transform.forward)
         {
+            //Debug.Log("North");
             return FaceDirection.North;
         }
         else if (hit.normal == -transform.forward)
         {
+            //Debug.Log("South");
             return FaceDirection.South;
         }
         else if (hit.normal == transform.right)
         {
+            //Debug.Log("East");
             return FaceDirection.East;
         }
         else if (hit.normal == -transform.right)
         {
+            //Debug.Log("West");
             return FaceDirection.West;
         }
         else
@@ -118,6 +124,9 @@ public class ScalableBlock : MonoBehaviour
 
     private void Update()
     {
+        
+
+
 
         if (moving || rescaling)
         {
@@ -141,7 +150,14 @@ public class ScalableBlock : MonoBehaviour
         {
             completelyReseted = false;
 
-            if (Input.GetMouseButtonDown(1))
+            if (Input.GetButtonDown("DeleteBlock"))
+            {
+                StartCoroutine(DeleteBlock());
+            }
+
+
+
+            else if (Input.GetMouseButtonDown(1))
             {
                 Debug.Log("Click droit");
 
@@ -211,7 +227,12 @@ public class ScalableBlock : MonoBehaviour
 
 
 
-
+    IEnumerator DeleteBlock()
+    {
+        yield return new WaitForEndOfFrame();
+        Destroy(gameObject);
+        Player.GetPlayer().GetComponent<PlayerPower>().canSummonBlock = true;
+    }
 
 
 
@@ -255,7 +276,7 @@ public class ScalableBlock : MonoBehaviour
     // -------------------------------------------------------------------------------- Fonctions Rescale Block -------------------------------------------------------------------------------- //
     // Principal Fonction
     // Redimensionner le bloc en fonction de la position de la caméra et du joueur
-    private void Rescale()
+    /*private void Rescale()
     {
         Transform player = Player.GetPlayer().transform;
         Transform camera = Player.GetMainCamera().transform;
@@ -265,79 +286,82 @@ public class ScalableBlock : MonoBehaviour
         Vector3 faceNormal = GetFaceNormal(faceDirection);
         Vector3 faceCenter = GetFaceCenter(faceDirection);
 
+
+
         Vector3 cameraForward = camera.forward;
         Vector3 cameraPosition = camera.position;
 
         Vector3 intersectionPoint = CalculateIntersection(faceCenter, faceNormal, cameraPosition, cameraForward);
 
 
-        Vector3 distanceInterFace = intersectionPoint - faceCenter;
+        Vector3 distanceInterFaceTemp = intersectionPoint - faceCenter;
+        Vector3 distanceInterFace = transform.InverseTransformDirection(distanceInterFaceTemp);
+
+        Debug.DrawLine(faceCenter, intersectionPoint, Color.blue);
+        Debug.DrawLine(cameraPosition, intersectionPoint, Color.green);
+
+        Debug.DrawLine(faceCenter, faceCenter + distanceInterFace, Color.red);
 
 
 
-
-        
-
-        Debug.DrawLine(faceCenter, faceCenter + distanceInterFace, Color.blue);
-        
-            switch (faceDirection)
-            {
-                case FaceDirection.Up:
+        switch (faceDirection)
+        {
+            case FaceDirection.Up:
                 if(cantScaleUp && distanceInterFace.y > 0) 
                 {
                     break;
                 }
                 if (transform.localScale.y + distanceInterFace.y >= 0.5f && transform.localScale.y + distanceInterFace.y <= 10)
                 {
-                    transform.localScale += new Vector3(0, distanceInterFace.y, 0);
-                    transform.position += new Vector3(0, distanceInterFace.y / 2, 0);
+                    transform.localScale += transform.up * distanceInterFace.y;
+                    transform.position += transform.up * distanceInterFace.y / 2;
                 }
                     break;
-                case FaceDirection.Down:
+            case FaceDirection.Down:
                 if(cantScaleUp && distanceInterFace.y < 0)
                 {
                     break;
                 }
                 if (transform.localScale.y - distanceInterFace.y >= 0.5f && transform.localScale.y - distanceInterFace.y <= 10)
                 {
-                    transform.localScale -= new Vector3(0, distanceInterFace.y, 0);
-                    transform.position += new Vector3(0, distanceInterFace.y / 2, 0);
+                    transform.localScale += transform.up * distanceInterFace.y;
+                    transform.position += transform.up * distanceInterFace.y / 2;
                 }
                     break;
-                case FaceDirection.North:
+            case FaceDirection.North:
                 if (cantScaleUp && distanceInterFace.z > 0)
                     break;
                 if (transform.localScale.z + distanceInterFace.z >= 0.5f && transform.localScale.z + distanceInterFace.z <= 10)
                 {
-                    transform.localScale += new Vector3(0, 0, distanceInterFace.z);
-                    transform.position += new Vector3(0, 0, distanceInterFace.z / 2);
+                    transform.localScale -= transform.forward * distanceInterFace.z;
+                    transform.position += transform.forward * distanceInterFace.z / 2;
                 }
                     break;
-                case FaceDirection.South:
+            case FaceDirection.South:
                 if (cantScaleUp && distanceInterFace.z < 0)
                     break;
                 if (transform.localScale.z - distanceInterFace.z >= 0.5f && transform.localScale.z - distanceInterFace.z <= 10)
                 {
-                    transform.localScale -= new Vector3(0, 0, distanceInterFace.z);
-                    transform.position += new Vector3(0, 0, distanceInterFace.z / 2);
+                    transform.localScale += transform.forward * distanceInterFace.z;
+                    transform.position += transform.forward * distanceInterFace.z / 2;
                 }
                     break;
-                case FaceDirection.East:
+            case FaceDirection.East:
                 if (cantScaleUp && distanceInterFace.x > 0)
                     break;
                 if (transform.localScale.x + distanceInterFace.x >= 0.5f && transform.localScale.x + distanceInterFace.x <= 10)
                 {
-                    transform.localScale += new Vector3(distanceInterFace.x, 0, 0);
-                    transform.position += new Vector3(distanceInterFace.x / 2, 0, 0);
+                    transform.localScale -= transform.right * distanceInterFace.x;
+                    transform.position += transform.right * distanceInterFace.x / 2;    
                 }
                     break;
-                case FaceDirection.West:
+            case FaceDirection.West:
                 if (cantScaleUp && distanceInterFace.x < 0)
                     break;
                 if (transform.localScale.x - distanceInterFace.x >= 0.5f && transform.localScale.x - distanceInterFace.x <= 10)
                 {
-                    transform.localScale -= new Vector3(distanceInterFace.x, 0, 0);
-                    transform.position += new Vector3(distanceInterFace.x / 2, 0, 0);
+                    transform.localScale += transform.right * distanceInterFace.x;
+                    transform.position += transform.right * distanceInterFace.x / 2;
                 }
                 break;
         }
@@ -350,7 +374,7 @@ public class ScalableBlock : MonoBehaviour
         Vector3 closestAngle = GetAngles(faceDirection)[0];
         foreach (Vector3 angle in GetAngles(faceDirection))
         {
-            Debug.DrawLine(faceCenter, angle, Color.red);
+            //Debug.DrawLine(faceCenter, angle, Color.red);
 
             if (Vector3.Distance(camera.position, angle) <= Vector3.Distance(camera.position, closestAngle))
             {
@@ -362,10 +386,59 @@ public class ScalableBlock : MonoBehaviour
             cantScaleUp = true;
         }
 
+    }*/
+
+    private void Rescale()
+    {
+        Transform player = Player.GetPlayer().transform;
+        Transform camera = Player.GetMainCamera().transform;
+
+
+        Vector3 cameraPos = camera.position;
+        Vector3 cameraForward = camera.forward;
+
+        Vector3 faceCenter = GetFaceCenter(faceDirection);
+        Vector3 faceNormal = GetFaceNormal(faceDirection);
+        Vector3 faceCenterCube = transform.InverseTransformPoint(faceCenter);
+
+
+        Vector3 intersectionPoint = CalculateIntersection(faceCenter, faceNormal, cameraPos, cameraForward);
+        Vector3 intersectionPointCube = transform.InverseTransformPoint(intersectionPoint);
+
+        Vector3 distanceInterFace = intersectionPointCube - faceCenterCube;
+        Debug.Log(distanceInterFace + " = " + intersectionPointCube + " - " + faceCenterCube);
+
+
+
+
+        int negative = 1;
+        if(faceDirection == FaceDirection.Down || faceDirection == FaceDirection.South || faceDirection == FaceDirection.West)
+        {
+            negative = -1;
+        }
+
+        if(transform.localScale.x + distanceInterFace.x * negative < 0.5f || transform.localScale.y + distanceInterFace.y * negative < 0.5f || transform.localScale.z + distanceInterFace.z * negative < 0.5f ||
+           transform.localScale.x + distanceInterFace.x * negative > 10 || transform.localScale.y + distanceInterFace.y * negative > 10 || transform.localScale.z + distanceInterFace.z * negative > 10)
+        {
+            return;
+        }
+        else
+        {
+            //transform.position += distanceInterFace / 2;
+
+            transform.localScale += distanceInterFace * negative;
+            transform.position += transform.TransformDirection(distanceInterFace) / 2;
+
+
+
+            Debug.Log("face direction : " + faceDirection + " // distanceInterface : " + distanceInterFace + " // negative : " + negative + " // intersecption : " + intersectionPointCube);
+        }
+
+
+        Debug.DrawLine(faceCenter, intersectionPoint, Color.blue);
+        Debug.DrawLine(faceCenterCube, intersectionPointCube, Color.green);
+
     }
-
-
-
 
 
     // Recuperer le centre de la face du bloc en fonction de la direction
@@ -376,12 +449,12 @@ public class ScalableBlock : MonoBehaviour
 
         switch (direction)
         {
-            case FaceDirection.Up: return center + new Vector3(0, halfScale.y, 0);
-            case FaceDirection.Down: return center - new Vector3(0, halfScale.y, 0);
-            case FaceDirection.North: return center + new Vector3(0, 0, halfScale.z);
-            case FaceDirection.South: return center - new Vector3(0, 0, halfScale.z);
-            case FaceDirection.East: return center + new Vector3(halfScale.x, 0, 0);
-            case FaceDirection.West: return center - new Vector3(halfScale.x, 0, 0);
+            case FaceDirection.Up: return center + transform.up * halfScale.y;
+            case FaceDirection.Down: return center - transform.up * halfScale.y;
+            case FaceDirection.North: return center + transform.forward * halfScale.z;
+            case FaceDirection.South: return center - transform.forward * halfScale.z;
+            case FaceDirection.East: return center + transform.right * halfScale.x;
+            case FaceDirection.West: return center - transform.right * halfScale.x;
             default: return center;
         }
     }
@@ -471,6 +544,9 @@ public class ScalableBlock : MonoBehaviour
     }
 
 
-
+    private Vector3 Abs(Vector3 vector)
+    {
+        return new Vector3(Mathf.Abs(vector.x), Mathf.Abs(vector.y), Mathf.Abs(vector.z));
+    }
 
 }

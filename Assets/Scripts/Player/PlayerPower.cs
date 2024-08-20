@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditorInternal;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
 
 public class PlayerPower : MonoBehaviour
 {
@@ -11,6 +9,7 @@ public class PlayerPower : MonoBehaviour
     [Header("Player Power Settings")]
     [SerializeField] private Camera camera;
     [SerializeField] LayerMask layerMask;
+    public bool tutoAllowingSummon = false;
 
     [Header("Block Settings")]
     [SerializeField] private GameObject blockPrefab;
@@ -30,7 +29,7 @@ public class PlayerPower : MonoBehaviour
     {
         RaycastBlock();
 
-        if(Input.GetButtonDown("SummonBlock"))
+        if(Input.GetButtonDown("SummonBlock") && tutoAllowingSummon)
         {
             Debug.Log("Summoning block");
             SummonBlock();

@@ -7,6 +7,8 @@ public class Player : MonoBehaviour
 {
     private static Player instance;
     private static Camera mainCamera;
+    private static Canvas canvaPlayer;
+    private static Voice voice;
 
     void Awake()
     {
@@ -18,6 +20,16 @@ public class Player : MonoBehaviour
         if (mainCamera == null)
         {
             mainCamera = gameObject.transform.Find("Main Camera").GetComponent<Camera>();
+        }
+
+        if(canvaPlayer == null)
+        {
+            canvaPlayer = GameObject.Find("Canvas").GetComponent<Canvas>();
+        }
+
+        if (voice == null)
+        {
+            voice = GameObject.Find("IA").GetComponent<Voice>();
         }
     }
 
@@ -43,6 +55,32 @@ public class Player : MonoBehaviour
         else
         {
             Debug.LogError("Main Camera not found!");
+            return null;
+        }
+    }
+
+    public static Canvas GetCanvasPlayer()
+    {
+        if(canvaPlayer != null)
+        {
+            return canvaPlayer;
+        }
+        else
+        {
+            Debug.LogError("Canvas Player not found!");
+            return null;
+        }
+    }
+
+    public static Voice GetVoice()
+    {
+        if (voice != null)
+        {
+            return voice;
+        }
+        else
+        {
+            Debug.LogError("Voice not found!");
             return null;
         }
     }

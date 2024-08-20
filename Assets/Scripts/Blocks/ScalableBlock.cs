@@ -10,6 +10,14 @@ public class ScalableBlock : MonoBehaviour
 
     [SerializeField] private Material[] materials;
 
+    [SerializeField] private GameObject map;
+    [SerializeField] List<GameObject> blocksToNotGoThrough;
+
+    [Header("Sounds")]
+    [SerializeField] private AudioClip[] sounds;
+    [SerializeField] private AudioSource audioSourcePop;
+    [SerializeField] private AudioSource audioSource;
+
 
     public bool rescaling = false;
     public bool moving = false;
@@ -23,6 +31,26 @@ public class ScalableBlock : MonoBehaviour
     private void Start()
     {
         coloredFace.localScale = Vector3.one / 10;
+        blocksToNotGoThrough = new List<GameObject>();
+
+        if (map != null)
+        {
+            string[] blockNames = { "PedestalPlayer", "PedestalAI", "PedestalAI/PedestalAITop", "PedestalAI/Glass" };
+
+            foreach (string blockName in blockNames)
+            {
+                Transform blockTransform = map.transform.Find(blockName);
+                if (blockTransform != null)
+                {
+                    blocksToNotGoThrough.Add(blockTransform.gameObject);
+                }
+            }
+        }
+
+
+
+
+
     }
 
     private enum FaceDirection
@@ -114,6 +142,9 @@ public class ScalableBlock : MonoBehaviour
         }
         
         coloredFace.gameObject.SetActive(true);
+        
+
+        Player.GetCanvasPlayer().GetComponent<PlayerCanvas>().cursorType = PlayerCanvas.CursorType.Select;
         SetTrigger(faceDirection);
 
     }
@@ -121,6 +152,7 @@ public class ScalableBlock : MonoBehaviour
     public void ResetColoredFace()
     {
         coloredFace.gameObject.SetActive(false);
+        Player.GetCanvasPlayer().GetComponent<PlayerCanvas>().cursorType = PlayerCanvas.CursorType.Default;
     }
 
     private void SetTrigger(FaceDirection faceDirection)
@@ -172,14 +204,18 @@ public class ScalableBlock : MonoBehaviour
             {
                 rescaling = false;
 
-                coloredFace.GetComponent<MeshRenderer>().material = materials[2]; // Vert
+                //coloredFace.GetComponent<MeshRenderer>().material = materials[2]; // Vert
+                Player.GetCanvasPlayer().GetComponent<PlayerCanvas>().cursorType = PlayerCanvas.CursorType.Default;
             }
 
             else if (Input.GetMouseButtonUp(1) && moving)
             {
                 moving = false;
 
-                coloredFace.GetComponent<MeshRenderer>().material = materials[2]; // Vert
+                //coloredFace.GetComponent<MeshRenderer>().material = materials[2]; // Vert
+                Player.GetCanvasPlayer().GetComponent<PlayerCanvas>().cursorType = PlayerCanvas.CursorType.Default;
+                audioSourcePop.PlayOneShot(sounds[0]); // Jouer le son avec l'AudioSource
+
             }
         }
 
@@ -203,7 +239,9 @@ public class ScalableBlock : MonoBehaviour
                 moving = true;
                 rescaling = false;
 
-                coloredFace.GetComponent<MeshRenderer>().material = materials[1]; // Rose
+
+                //coloredFace.GetComponent<MeshRenderer>().material = materials[1]; // Rose
+                Player.GetCanvasPlayer().GetComponent<PlayerCanvas>().cursorType = PlayerCanvas.CursorType.Move;
 
 
                 minDistanceMoving = Vector3.Distance(Player.GetMainCamera().transform.position, transform.position);
@@ -219,7 +257,8 @@ public class ScalableBlock : MonoBehaviour
                 rescaling = true;
                 moving = false;
 
-                coloredFace.GetComponent<MeshRenderer>().material = materials[0]; // Rouge
+                //coloredFace.GetComponent<MeshRenderer>().material = materials[0]; // Rouge
+                Player.GetCanvasPlayer().GetComponent<PlayerCanvas>().cursorType = PlayerCanvas.CursorType.Scale;
 
                 lastPlayerPos = Player.GetPlayer().transform.position;
             }
@@ -248,7 +287,8 @@ public class ScalableBlock : MonoBehaviour
 
         if (moving) // Rose
         {
-            if(cantScaleUp && faceDirection == FaceDirection.Up)
+            Player.GetCanvasPlayer().GetComponent<PlayerCanvas>().cursorType = PlayerCanvas.CursorType.Move;
+            if (cantScaleUp && faceDirection == FaceDirection.Up)
             {
                 return;
             }
@@ -262,6 +302,9 @@ public class ScalableBlock : MonoBehaviour
         }
         else if (rescaling) // Rouge
         {
+            //audioSource.pitch = 1 + (transform.localScale.x + transform.localScale.y + transform.localScale.z) / 30;
+            //audioSource.PlayOneShot(sounds[1]); // Jouer le son avec l'AudioSource
+
             Rescale();
             lastPlayerPos = Player.GetPlayer().transform.position;
             SetTrigger(faceDirection);
@@ -274,10 +317,21 @@ public class ScalableBlock : MonoBehaviour
 
     IEnumerator DeleteBlock()
     {
+        Player.GetPlayer().GetComponent<PlayerPower>().canSummonBlock = true;
+        Player.GetCanvasPlayer().GetComponent<PlayerCanvas>().cursorType = PlayerCanvas.CursorType.Default;
         yield return new WaitForEndOfFrame();
         Destroy(gameObject);
         Player.GetPlayer().GetComponent<PlayerPower>().canSummonBlock = true;
+        Player.GetCanvasPlayer().GetComponent<PlayerCanvas>().cursorType = PlayerCanvas.CursorType.Default;
     }
+
+
+    [SerializeField]float distanceUp;
+    [SerializeField]float distanceDown;
+    [SerializeField]float distanceNorth;
+    [SerializeField]float distanceSouth;
+    [SerializeField]float distanceEast;
+    [SerializeField]float distanceWest;
 
 
 
@@ -286,6 +340,8 @@ public class ScalableBlock : MonoBehaviour
     // Déplacer le bloc en fonction de la position de la caméra et du joueur
     private void MoveBlock()
     {
+        Vector3 positionInitiale = transform.position;
+
         Transform cameraTransform = Player.GetMainCamera().transform;
         Transform player = Player.GetPlayer().transform;
 
@@ -312,20 +368,99 @@ public class ScalableBlock : MonoBehaviour
 
 
 
-        // MoveTowards pour déplacer l'objet
+        // Verif du sol
         if (transform.position.y < 0 + transform.localScale.y / 2)
         {
-            Debug.Log("en dessous");
             transform.position = new Vector3(transform.position.x, 0 + transform.localScale.y / 2, transform.position.z);
+        }
+        //Verif des murs
+        if (transform.position.x < -10 + transform.localScale.x / 2)
+        {
+            transform.position = new Vector3(-10 + transform.localScale.x / 2, transform.position.y, transform.position.z);
+        }
+        if (transform.position.x > 10 - transform.localScale.x / 2)
+        {
+            transform.position = new Vector3(10 - transform.localScale.x / 2, transform.position.y, transform.position.z);
+        }
+        if (transform.position.z < -15 + transform.localScale.z / 2)
+        {
+            transform.position = new Vector3(transform.position.x, transform.position.y, -15 + transform.localScale.z / 2);
+        }
+        if (transform.position.z > 15 - transform.localScale.z / 2)
+        {
+            transform.position = new Vector3(transform.position.x, transform.position.y, 15 - transform.localScale.z / 2);
+        }
+        // Verif du toit
+        if (transform.position.y > 8 - transform.localScale.y / 2)
+        {
+            transform.position = new Vector3(transform.position.x, 8 - transform.localScale.y / 2, transform.position.z);
+        }
+
+
+
+
+
+
+        // Verif des autres blocs
+        foreach (GameObject block in blocksToNotGoThrough)
+        {
+            if (block != gameObject)
+            {
+
+                CheckBlocksCollision(block, positionInitiale);
+
+            }
         }
     }
 
 
 
 
-    // -------------------------------------------------------------------------------- Fonctions Rescale Block -------------------------------------------------------------------------------- //
-    // Principal Fonction
-    // Redimensionner le bloc en fonction de la position de la caméra et du joueur
+
+
+    private void CheckBlocksCollision(GameObject block, Vector3 positionInitiale)
+    {
+        if (transform.position.x - transform.localScale.x / 2 < block.transform.position.x + block.transform.localScale.x / 2 * block.transform.parent.localScale.x &&
+            transform.position.x + transform.localScale.x / 2 > block.transform.position.x - block.transform.localScale.x / 2 * block.transform.parent.localScale.x &&
+            transform.position.y - transform.localScale.y / 2 < block.transform.position.y + block.transform.localScale.y / 2 * block.transform.parent.localScale.y &&
+            transform.position.y + transform.localScale.y / 2 > block.transform.position.y - block.transform.localScale.y / 2 * block.transform.parent.localScale.y &&
+            transform.position.z - transform.localScale.z / 2 < block.transform.position.z + block.transform.localScale.z / 2 * block.transform.parent.localScale.z &&
+            transform.position.z + transform.localScale.z / 2 > block.transform.position.z - block.transform.localScale.z / 2 * block.transform.parent.localScale.z)
+        {
+            if (positionInitiale.x + transform.localScale.x / 2 <= block.transform.position.x - block.transform.localScale.x / 2 * block.transform.parent.localScale.x ||
+                positionInitiale.x - transform.localScale.x / 2 >= block.transform.position.x + block.transform.localScale.x / 2 * block.transform.parent.localScale.x)
+            {
+                transform.position = new Vector3(positionInitiale.x, transform.position.y, transform.position.z);
+                Debug.Log("ca fait qqch ?");
+            }
+
+            if (positionInitiale.y + transform.localScale.y / 2 <= block.transform.position.y - block.transform.localScale.y / 2 * block.transform.parent.localScale.y ||
+                positionInitiale.y - transform.localScale.y / 2 >= block.transform.position.y + block.transform.localScale.y / 2 * block.transform.parent.localScale.y)
+            {
+                Debug.Log("ca fait qqch ?");
+                transform.position = new Vector3(transform.position.x, positionInitiale.y, transform.position.z);
+            }
+
+            if (positionInitiale.z + transform.localScale.z / 2 <= block.transform.position.z - block.transform.localScale.z / 2 * block.transform.parent.localScale.z ||
+                positionInitiale.z - transform.localScale.z / 2 >= block.transform.position.z + block.transform.localScale.z / 2 * block.transform.parent.localScale.z)
+            {
+                Debug.Log("ca fait qqch ?");
+                transform.position = new Vector3(transform.position.x, transform.position.y, positionInitiale.z);
+            }
+
+
+        }
+
+
+    }
+
+
+
+
+
+        // -------------------------------------------------------------------------------- Fonctions Rescale Block -------------------------------------------------------------------------------- //
+        // Principal Fonction
+        // Redimensionner le bloc en fonction de la position de la caméra et du joueur
     private void Rescale()
     {
         Transform player = Player.GetPlayer().transform;

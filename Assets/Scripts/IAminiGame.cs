@@ -94,14 +94,14 @@ public class IAminiGame : MonoBehaviour
                         {
                             levelSpawned = true;
                             StartCoroutine(SummonBlockLevel());
-                            voice.PlayVoice(Random.Range(11, 12));
+                            voice.PlayVoice(Random.Range(11, 13));
                         }
                     }
                     else
                     {
                         level -= 1;
                         StartCoroutine(SummonBlockLevel());
-                        voice.PlayVoice(Random.Range(13, 16));
+                        voice.PlayVoice(Random.Range(13, 17));
                     }
                 }
 

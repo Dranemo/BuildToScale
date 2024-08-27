@@ -11,6 +11,8 @@ public class MainMenu : MonoBehaviour
 
     private void Start()
     {
+        GameObject.Destroy(LevelRestarting.GetInstancee());
+
         buttons[0].onClick.AddListener(() => StartGame());
         buttons[1].onClick.AddListener(() => ShowPanel(1));
         buttons[2].onClick.AddListener(() => ExitGame());

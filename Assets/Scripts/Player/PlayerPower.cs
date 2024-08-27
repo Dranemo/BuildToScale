@@ -27,6 +27,9 @@ public class PlayerPower : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Pause.paused)
+            return;
+
         RaycastBlock();
 
         if(Input.GetButtonDown("SummonBlock") && tutoAllowingSummon)

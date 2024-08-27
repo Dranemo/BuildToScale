@@ -31,6 +31,7 @@ public class Player : MonoBehaviour
         {
             voice = GameObject.Find("IA").GetComponent<Voice>();
         }
+
     }
 
     public static GameObject GetPlayer()

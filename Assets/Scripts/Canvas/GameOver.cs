@@ -10,6 +10,8 @@ public class GameOver : MonoBehaviour
 
     private void Start()
     {
+        GameObject.Destroy(LevelRestarting.GetInstancee());
+
         button.onClick.AddListener(() => QuitGame());
 
         this.gameObject.SetActive(true);

@@ -194,7 +194,8 @@ public class ScalableBlock : MonoBehaviour
 
     private void Update()
     {
-        
+        if (Pause.paused)
+            return;
 
 
 

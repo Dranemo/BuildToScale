@@ -50,12 +50,17 @@ public class IAminiGame : MonoBehaviour
         hole.SetActive(false);
 
         voice = Player.GetVoice();
+
+        level = LevelRestarting.GetInstancee().GetComponent<LevelRestarting>().levelInt - 1;
     }
 
 
 
     private void Update()
     {
+        if (Pause.paused)
+            return;
+
         if (!voice.tutoFinished)
         {
             if (!levelSpawned)
@@ -72,6 +77,9 @@ public class IAminiGame : MonoBehaviour
 
         else
         {
+            if(currentLevel == null)
+                StartCoroutine(SummonBlockLevel());
+
             if (voice.startTimer)
             {
                 voice.startTimer = false;
@@ -287,7 +295,7 @@ public class IAminiGame : MonoBehaviour
         pince.SetActive(true);
         hole.SetActive(true);
 
-        if(level != 0)
+        if(currentLevel != null)
         {
             ascended = false;
             StartCoroutine(BlocksAscending());
@@ -309,7 +317,10 @@ public class IAminiGame : MonoBehaviour
         else
         {
 
-
+            if(currentLevel != null)
+            {
+                GameObject.Destroy(currentLevel);
+            }
             currentLevel = Instantiate(prefabsLevels[level], SpawningPlateform.transform.position + Vector3.up * 8, Quaternion.identity);
             currentLevel.transform.parent = SpawningPlateform.transform;
 
@@ -368,7 +379,6 @@ public class IAminiGame : MonoBehaviour
         }
 
         ascended = true;
-        GameObject.Destroy(currentLevel);
         foreach (Transform cube in cubesPlayer.transform)
         {
             GameObject.Destroy(cube.gameObject);

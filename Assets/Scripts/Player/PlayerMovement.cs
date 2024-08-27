@@ -20,6 +20,17 @@ public class PlayerMovement : MonoBehaviour
     // -------------------------------------------------------------------------------- Functions Unity -------------------------------------------------------------------------------- //
     void Update()
     {
+        if (Pause.paused)
+        {
+            Debug.Log("N=Pauszed Moveet");
+            horizontalInput = 0f;
+            verticalInput = 0f;
+            jumpInput = false;
+
+            return;
+        }
+
+
         horizontalInput = Input.GetAxis("Horizontal");
         verticalInput = Input.GetAxis("Vertical");
         jumpInput = Input.GetButtonDown("Jump");

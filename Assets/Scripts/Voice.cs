@@ -43,8 +43,14 @@ public class Voice : MonoBehaviour
 
 
 
-
-        StartCoroutine(TutoVoice());
+        if(gameObject.GetComponent<IAminiGame>().level == -1)
+            StartCoroutine(TutoVoice());
+        else
+        {
+            Player.GetPlayer().GetComponent<PlayerPower>().tutoAllowingSummon = true;
+            tutoFinished = true;
+            startTimer = true;
+        }
     }
 
     public void PlayVoice(int index)
@@ -56,6 +62,15 @@ public class Voice : MonoBehaviour
 
     private void Update()
     {
+        if(Pause.paused)
+        {
+            source.Pause();
+        }
+        else
+        {
+            source.UnPause();
+        }
+
         if (!source.isPlaying)
         {
             text.text = "";
@@ -77,6 +92,9 @@ public class Voice : MonoBehaviour
             voiceFinished = false;
             while (!voiceFinished)
             {
+                while(Pause.paused)
+                    yield return null;
+
                 if (!source.isPlaying)
                 {
                     voiceFinished = true;
@@ -84,6 +102,9 @@ public class Voice : MonoBehaviour
                 yield return null;
             }
         }
+
+        while (Pause.paused)
+            yield return null;
 
         while (!voiceFinished)
         {
@@ -94,6 +115,8 @@ public class Voice : MonoBehaviour
             yield return null;
         }
 
+        while (Pause.paused)
+            yield return null;
 
         startTimer = true;
         yield return new WaitForSeconds(4);
@@ -103,6 +126,9 @@ public class Voice : MonoBehaviour
             voiceFinished = false;
             while (!voiceFinished)
             {
+                while (Pause.paused)
+                    yield return null;
+
                 if (!source.isPlaying)
                 {
                     voiceFinished = true;
@@ -114,6 +140,9 @@ public class Voice : MonoBehaviour
                 Player.GetPlayer().GetComponent<PlayerPower>().tutoAllowingSummon = true;
             }
         }
+
+        while (Pause.paused)
+            yield return null;
 
         while (!voiceFinished)
         {

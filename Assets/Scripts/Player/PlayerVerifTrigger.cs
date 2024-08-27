@@ -15,7 +15,7 @@ public class PlayerVerifTrigger : MonoBehaviour
 
     private void Update()
     {
-        if (Player.GetPlayer().transform.position.y >= 20)
+        if (Player.GetPlayer().transform.position.y >= 8)
         {
             Player.GetPlayer().transform.position = new Vector3(Player.GetPlayer().transform.position.x, 2, Player.GetPlayer().transform.position.z) ;
         }
